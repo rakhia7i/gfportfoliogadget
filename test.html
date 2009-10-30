@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<title>JavaScript Test Page</title>
+	</head>
+	<body>
+		<script lang="JavaScript">
+			// Javascript will go here
+			document.write("Hello world!");
+			// Use this data for testing at the moment until we work out a way to get it from HTML
+			// This is a dump from this URL:
+			// http://www.google.com/finance/getprices?q=3383&x=HKG&p=6Y&i=604800&f=d,c,v&df=epoch
+			// First part is the date, second is the price on that date, third is volume.
+			// In the URL the parameters are:
+			// q	Stock index (3383 is Agile property on Hong Kong Exchange)
+			// x	Stock Exchange (HKG for Hong Kong)
+			// p	Period - 6Y is 6 years
+			// i 	Interval - 604800 is number of seconds in a week
+			// f	Output format.  In this case date, closing price and volume
+			// df	I'm not sure.  I don't know what 'epoch' means either.
+			// There's no documentation from google on any of this.
+			var testData = "1134720000,3.75,706357500
+			1135324800,3.65,235633207
+			1135929600,3.75,70658000
+			1136534400,4.075,188042037
+			1137139200,4.225,196295000
+			1137744000,4.5,181422000
+			1138348800,4.625,108882618
+			1138953600,4.45,73017000
+			1139558400,4.4,100249305
+			1140163200,4.55,61993000
+			1140768000,4.55,60498909
+			1141372800,4.55,72452000
+			1141977600,4.5,61915000
+			1142582400,4.975,89508500
+			1143187200,5.5,100087000";
+
+
+		</script>
+	</body>
+</html>
