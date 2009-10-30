@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs title="View of My Portfolio"
+		title_url="http://finance.google.com/finance"
+		author="Mark Ferraretto"
+		author_email="markjfe+@gmail.com"
+		screenshot="TBC"
+		thumbnail="TBC"
+		directory_title="Stock Chart Showing Performance of Selected Google Finance Portfolio"
+		category="finance"
+		description="View a chart showing the historical performance of your Google Finance portfolio"
+		singleton="false"
+		height="1000" >
+		<Require feature="setprefs"/>
+		<Require feature="finance"/>
+		<Require feature="finance_internal"/>
+		<Require feature="dynamic-height"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+
+<table width=100%>
+	<tr><td><div id='GF__MODULE_ID__widthdiv'></div></td></tr>
+</table>
+
+<table width=100%><tr valign=top><td nowrap>
+<form onsubmit="javascript:GF__MODULE_ID__doAutoComplete();return false;">
+	<table width=100% border=0 cellpadding=2 cellspacing=2>
+		<tr valign=top>
+			<td width=1% align=right>Symbol:&nbsp;</td>
+			<td>
+				<input type="text"
+					 id="GF__MODULE_ID__acedit"
+					 style="width:60%",
+					 autocomplete="off"/>
+				&nbsp;
+				<input type="submit" value="Add"/><br>
+			</td>
+		</tr>
+	</table>
+</form>
+</td><td width=1% align=right nowrap>
+	<div align=center id="GF__MODULE_ID__linking"
+			 onClick="javascript:GF__MODULE_ID__toggleLinking(this)"></div>
+</td></tr></table>
+
+<div id="GF__MODULE_ID__Main"></div>
+
+<script type="text/javascript">
+
+function GF__MODULE_ID__formatShortDate(dateObj) {
+	if (!dateObj) { return 'n/a'; }
+
+	var ret = [];
+	ret.push(dateObj.getDate(), '/', dateObj.getMonth() + 1);
+	ret.push('/', dateObj.getFullYear());
+	ret.push(' ');
+      
+	return ret.join('');
+}
+
+function GF__MODULE_ID__doAutoComplete() {
+	GF__MODULE_ID__.loadChart("HKG:3383", false);
+}
+
+var GF__MODULE_ID__ = {
+	prefs_: new _IG_Prefs(__MODULE_ID__),
+	maxItems_ : 3,
+	chartDivIdx_ : 1,
+	lastSymbol_ : '',
+	refreshInterval_ : 2000,
+	timeSeriesGranularityInWeeks_ : 4,	// maximum downsampling ratio
+	desiredPointsToXPixelRatio_ : 0.2,	// inversely proportional to downsampling
+	desiredSignalsToXPixelRatio_ : 0.4,
+	missingDatum_ : '__',
+	years_ : 5,
+	intervalRate_ : 604800,
+	fractionOfImageForPriceData_ : 0.8,
+	fractionOfImageForPriceDataIfNoVolume_ : 0.95,
+	chartURL_ : 'http://www.google.com/chart?cht=lc&chd=',
+	chartMaxHeight_ : 300,
+	chartMaxWidth_ : 1000,
+	mru_ : new Array(),
+
+	deb : function(str) {
+		var d = window.open("", "Debug", "width=320,height=800,scrollbars=yes");
+		d.document.writeln(str + '<br>');
+	},
+
+	init : function() {
+		google.finance.InitAutoComplete(google.finance.autocomplete.MATCH_ALL,
+			_gel('GF__MODULE_ID__acedit'),
+			true);
+	},
+
+	getSymbolData : function(symbol, startDate, EndDate) {
+		symbol = symbol.toUpperCase();
+
+		var intervalRate = GF__MODULE_ID__.intervalRate_;
+		var years = GF__MODULE_ID__.years_;
+
+		GF__MODULE_ID__.deb('symbol = ' + symbol);
+		var symbolPieces = symbol.split(':');
+		var symbolQuery = 'q=' + symbol;
+		if (symbolPieces && symbolPieces.length == 2) {
+			symbolQuery = 'q=' + symbolPieces[1] + '&x=';
+			if (symbolPieces[0] == 'NASDAQ') {
+				symbolQuery += 'NASD';
+			} else {
+				symbolQuery += symbolPieces[0];
+			}
+		}
+
+		var pricesUrl = google.finance.util.makeURL(__MODULE_ID__,
+			'/finance/getprices',
+			symbolQuery +
+			'&p=' + intervalPeriod +
+			'&i=' + intervalRate +
+			'&f=d,c,v&df=epoch',
+			false);
+
+		GF__MODULE_ID__.deb('url = ' + pricesUrl);
+		_IG_FetchContent(pricesUrl, function(fetchText) {
+			var lines = null;
+			if (fetchText) {
+				var lines = fetchText.split('\n');
+			}
+
+			if (!lines) {
+				div.innerHTML = '<br>No data found for ' + title;
+				_IG_AdjustIFrameHeight();
+				return;
+			}
+
+			var closeTimeSeries = new Array(lines.length);
+			var volumeTimeSeries = new Array(lines.length);
+			var dateTimeSeries = new Array(lines.length);
+			var yCount = 0;
+			var volumesArePresent = false;
+			var firstDate = null;
+			var lastDate = null;
+			var minPrice = null;
+			var maxPrice = null;
+
+			if (lines[0]) { GF__MODULE_ID__.deb('lines[0] = ' + lines[0]); }
+
+			for (var l = 0; l < lines.length; l++) {
+				var line = lines[l].split(',');
+				if (!line) { continue; }
+				if (line.length < 3) { continue; }
+
+				var thisClose = google.finance.util.parseFloat(line[1]);
+				if (!thisClose) { continue; }
+				if (isNaN(thisClose)) { continue; }
+
+				var thisVolume = google.finance.util.parseFloat(line[2]);
+				if (!thisVolume || isNaN(thisVolume)) { thisVolume = 0; }
+
+				closeTimeSeries[yCount] = thisClose;
+				volumeTimeSeries[yCount] = thisVolume;
+				dateTimeSeries[yCount] = line[0];
+				yCount++;
+				if (thisVolume != 0) { volumesArePresent = true; }
+			}
+
+			if (!yCount) {
+				div.innerHTML = '<br>Missing or corrupted data for ' + title;
+				_IG_AdjustIFrameHeight();
+				return;
+			}
+
+			closeTimeSeries.length = yCount;
+			volumeTimeSeries.length = yCount;
+			dateTimeSeries.length = yCount;
+			var niceDate = new Date();
+			
+      			for ( var i = 0; i < yCount; i++) {
+				niceDate.setTime(dateTimeSeries[i] * 1000);
+				GF__MODULE_ID__.deb("Date: " + GF__MODULE_ID__formatShortDate(niceDate) + " Price: " + closeTimeSeries[i]);
+			}
+		});
+	}
+
+};
+_IG_RegisterOnloadHandler(GF__MODULE_ID__.init);
+
+</script>
+		]]>
+	</Content>
+</Module>
