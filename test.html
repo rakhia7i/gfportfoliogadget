@@ -5,7 +5,7 @@
 	<body>
 		<script lang="JavaScript">
 			// Javascript will go here
-			document.write("Hello world!");
+
 			// Use this data for testing at the moment until we work out a way to get it from HTML
 			// This is a dump from this URL:
 			// http://www.google.com/finance/getprices?q=3383&x=HKG&p=6Y&i=604800&f=d,c,v&df=epoch
@@ -18,21 +18,80 @@
 			// f	Output format.  In this case date, closing price and volume
 			// df	I'm not sure.  I don't know what 'epoch' means either.
 			// There's no documentation from google on any of this.
-			var testData = "1134720000,3.75,706357500
-			1135324800,3.65,235633207
-			1135929600,3.75,70658000
-			1136534400,4.075,188042037
-			1137139200,4.225,196295000
-			1137744000,4.5,181422000
-			1138348800,4.625,108882618
-			1138953600,4.45,73017000
-			1139558400,4.4,100249305
-			1140163200,4.55,61993000
-			1140768000,4.55,60498909
-			1141372800,4.55,72452000
-			1141977600,4.5,61915000
-			1142582400,4.975,89508500
-			1143187200,5.5,100087000";
+			var testData = "1134720000,3.75,706357500\n1135324800,3.65,235633207\n1135929600,3.75,70658000\n1136534400,4.075,188042037\n1137139200,4.225,196295000\n1137744000,4.5,181422000\n1138348800,4.625,108882618\n1138953600,4.45,73017000\n1139558400,4.4,100249305\n1140163200,4.55,61993000\n1140768000,4.55,60498909\n1141372800,4.55,72452000\n1141977600,4.5,61915000\n1142582400,4.975,89508500\n1143187200,5.5,100087000";
+
+			var dataLines = testData.split('\n');
+			var priceData;
+			for (var i in dataLines) {
+				var singleLine = dataLines[i].split(',');
+				var shortDate = printShortDate(getDate(singleLine[0]));
+				priceData["3383"][printShortDate] = singleLine[1];
+			}
+
+			for ( i in priceData ) {
+				for ( var j in priceData[i] ) {
+					debugOutput("i: " + i + " j: " + j + " price " + priceData[i][j]);
+				}
+			}
+
+			//******************
+			// Definition of the Portfolio class where we store our information
+			function Portfolio(symbol)
+			// Expect: Nothing
+			// Return: Nothing
+			// Constructor.  Creates and empty Portfolio object
+			{
+				// Create an empty array of stocks
+				this.stocks = new Array();
+			}
+
+			Portfolio.prototype = {
+
+				addSymbol: function(sym) {
+					// Expect: stock ticker symbol
+					// Return: Nothing
+					// Adds the symbol to the Portfolio object
+
+					// Make sure it's not in there first
+					var found = false;
+					for (var i in this.stocks) {
+						if (this.stocks[i] == sym) {
+							found = true;
+						}
+					}
+					if ( !found ) {
+						this.stocks.push(sym);
+					}
+				}
+
+
+
+			function debugOutput(text) {
+			// Expect: text to print
+			// Return: Nothing
+			// Prints the text as debug text in the HTML output
+				document.write("Debug: " + text + "<br>\n");
+			}
+
+			function getDate(date) {
+			// Expect: String from Google Finance date
+			// Return: Date object
+			// Converts the date string received from the GF stream into a readable and parseable
+			// date object.  Simply multiplies the value by 1000.  Then we can format it using the
+			// Date object routines
+				return new Date(date * 1000);
+			}
+
+			function printShortDate(date)
+			// Expect: Date Object
+			// Return: String containing short date formatted as yyyy/mm/dd
+			{
+				// For some reason I can't do this inline so I'll split it out
+				var month = date.getMonth();
+				month++;
+
+				return date.getFullYear() + "/" + month + "/" + date.getDate();
+			}
 
 
 		</script>
