@@ -3,7 +3,8 @@
 		<title>JavaScript Test Page</title>
 	</head>
 	<body>
-		<script lang="JavaScript">
+		<script language="JavaScript" type="text/javascript" src="http://localhost/~mferrare/gfportfoliogadget/Portfolio.js"></script>
+		<script type="text/javascript" language="JavaScript">
 			// Javascript will go here
 
 			// Use this data for testing at the moment until we work out a way to get it from HTML
@@ -20,50 +21,24 @@
 			// There's no documentation from google on any of this.
 			var testData = "1134720000,3.75,706357500\n1135324800,3.65,235633207\n1135929600,3.75,70658000\n1136534400,4.075,188042037\n1137139200,4.225,196295000\n1137744000,4.5,181422000\n1138348800,4.625,108882618\n1138953600,4.45,73017000\n1139558400,4.4,100249305\n1140163200,4.55,61993000\n1140768000,4.55,60498909\n1141372800,4.55,72452000\n1141977600,4.5,61915000\n1142582400,4.975,89508500\n1143187200,5.5,100087000";
 
+			var myPortfolio = new Portfolio();
+			myPortfolio.addSymbol("3383");
+			myPortfolio.displaySymbols();
+			myPortfolio.addSymbol("3384");
+			myPortfolio.displaySymbols();
+			myPortfolio.addSymbol("3385");
+			myPortfolio.displaySymbols();
+			myPortfolio.addSymbol("3385");
+			myPortfolio.displaySymbols();
 			var dataLines = testData.split('\n');
-			var priceData;
 			for (var i in dataLines) {
 				var singleLine = dataLines[i].split(',');
 				var shortDate = printShortDate(getDate(singleLine[0]));
-				priceData["3383"][printShortDate] = singleLine[1];
+				debugOutput("Date: " + shortDate + " Price: " + singleLine[1])
 			}
 
-			for ( i in priceData ) {
-				for ( var j in priceData[i] ) {
-					debugOutput("i: " + i + " j: " + j + " price " + priceData[i][j]);
-				}
-			}
 
-			//******************
-			// Definition of the Portfolio class where we store our information
-			function Portfolio(symbol)
-			// Expect: Nothing
-			// Return: Nothing
-			// Constructor.  Creates and empty Portfolio object
-			{
-				// Create an empty array of stocks
-				this.stocks = new Array();
-			}
-
-			Portfolio.prototype = {
-
-				addSymbol: function(sym) {
-					// Expect: stock ticker symbol
-					// Return: Nothing
-					// Adds the symbol to the Portfolio object
-
-					// Make sure it's not in there first
-					var found = false;
-					for (var i in this.stocks) {
-						if (this.stocks[i] == sym) {
-							found = true;
-						}
-					}
-					if ( !found ) {
-						this.stocks.push(sym);
-					}
-				}
-
+			
 
 
 			function debugOutput(text) {
