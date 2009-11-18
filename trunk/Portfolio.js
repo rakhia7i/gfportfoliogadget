@@ -6,39 +6,30 @@ function Portfolio()
 {
 	// Create an empty array of stocks
 	this.stocks = new Array();
-	this.addSymbol = addSymbol;
-	this.findSymbol = findSymbol;
+	this.addPriceData = addPriceData;
+	this.displayPriceData = displayPriceData;
 	this.displaySymbols = displaySymbols;
+	this.makeDateEntry = makeDateEntry;
 }
 
-function findSymbol(sym) {
-// Expect: stock ticker symbol
-// Return: True or False
-// Looks for an element in the 'stocks' array corresponding
-// to the symbol.  Returns true if found and false otherwise
+function addPriceData(symbol, date, price) {
+//Expect: name of stock symbol, date as 'yyyy/mm/dd' and price
+//Return: nothing
+//Adds the stock into the object
 
-	debugOutput("findSymbol: stocks: " + this.stocks + " sym: " + sym);
-	for (var i in this.stocks) {
-		debugOutput("findSymbol: i: " + i + "sym: " + this.stocks[i]);
-		if (this.stocks[i] == sym) {
-			return true;
-		}
-	}
-	// If we got through the loop it means we didn't find it
-	return false;
+	this.makeDateEntry(symbol, date);
+	this.stocks[symbol][date]["price"] = price;
+	//debugOutput("addPriceData: symbol: " + symbol + " date: " + date + " price: " + price +
+	//	" entry: " + this.stocks[symbol].toString() + " date entry: " + this.stocks[symbol][date]);
 }
 
-function addSymbol (sym) {
-// Expect: stock ticker symbol
-// Return: Nothing
-// Adds the symbol to the Portfolio object
+function displayPriceData(symbol) {
+//Expect: Symbol of data to display
+//Return: Nothing
+//Prints the data for this symbol using debugOutput()
 
-	// Make sure it's not in there first
-	if ( ! this.findSymbol(sym) ) {
-		this.stocks.push(sym);
-		alert("Symbol: " + sym + " added");
-	} else {
-		alert("Symbol: " + sym + " exists");
+	for (var date in this.stocks[symbol]) {
+		debugOutput("displayPriceData: Stock: " + symbol + " date: " + date + " price: " + this.stocks[symbol][date]["price"]);
 	}
 }
 
@@ -46,9 +37,26 @@ function displaySymbols() {
 // Expect: Nothing
 // Return: Nothing
 // Displays the symbols in the stocks array
-	debugOutput("displaySymbols: stocks: " + this.stocks);
-	for (var i in this.stocks) {
-		debugOutput("displaySymbols: Symbol: " + this.stocks[i]);
+	//debugOutput("displaySymbols: stocks: " + this.stocks);
+	for (var stock in this.stocks) {
+		debugOutput("displaySymbols: stock: " + stock);
+	}
+
+}
+
+function makeDateEntry(symbol, date) {
+//Expect:  Stock symbol and date
+//Return:  Nothing
+// If the symbol and/or date for the symbol don't exist then initialise them
+// Otherwise do nothing
+
+	// create the stock entry first if it doesn't exist.'
+	if ( this.stocks[symbol] == null ) {
+		//debugOutput("addPriceData: symbol: " + symbol + " entry: " + this.stocks[symbol]);
+		this.stocks[symbol] = [];
+	}
+	if ( this.stocks[symbol][date] == null ) {
+		this.stocks[symbol][date] = [];
 	}
 
 }
