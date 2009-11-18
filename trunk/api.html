@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<title>JavaScript Test Page</title>
+		<script src="http://www.google.com/jsapi?key=ABQIAAAAo7OQLvjFxnvQ49ZaNDF14xSHxsOiPWbimRUEBVtEW8jDASMxcRQfycky5Tc6ARt9MqpKV7_XAN5n0g" type="text/javascript"></script>
+		<script src="http://localhost/~mferrare/gfportfoliogadget/GFLoad.js"></script>
+	</head>
+	<body>
+		<img src="pic.jpg" alt="pic" height=40 width=40>
+		<script language="JavaScript" type="text/javascript" src="http://localhost/~mferrare/gfportfoliogadget/Portfolio.js"></script>
+		<script type="text/javascript" language="JavaScript">
+
+			google.setOnLoadCallback(setupMyService());
+			google.load("gdata", "1");
+
+			function logMeIn() {
+				scope = "http://finance.google.com/finance/feeds/";
+				var token = google.accounts.user.login(scope);
+			}
+
+			function setupMyService() {
+				var myService =
+					new google.gdata.finance.FinanceService('exampleCo-exampleApp-1');
+				logMeIn();
+				return myService;
+			}
+
+			function sayHello() {
+				alert("stuff is loaded");
+			}
+
+		</script>
