@@ -1,31 +1,68 @@
 <html>
 	<head>
 		<title>JavaScript Test Page</title>
-		<script src="http://www.google.com/jsapi?key=ABQIAAAAo7OQLvjFxnvQ49ZaNDF14xSHxsOiPWbimRUEBVtEW8jDASMxcRQfycky5Tc6ARt9MqpKV7_XAN5n0g" type="text/javascript"></script>
-		<script src="http://localhost/~mferrare/gfportfoliogadget/GFLoad.js"></script>
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+		<script type="text/javascript" language="JavaScript">
+			google.load("gdata", "2", {packages: ["calendar"]});
+		</script>
 	</head>
 	<body>
-		<img src="pic.jpg" alt="pic" height=40 width=40>
-		<script language="JavaScript" type="text/javascript" src="http://localhost/~mferrare/gfportfoliogadget/Portfolio.js"></script>
+		<img src="http://localhost/~mferrare/gfportfoliogadget/pic.jpg" width=10 height=10 alt="pic">
+		<form name="inputform">
+		<input type=button name="login" value="Login" onclick="logMeIn()">
+		<input type=button name="logout" value="Logout" onclick="logMeOut()">
+		<input type=button name="getmyfeed" value="Get My Feed" onclick="getMyFeed()">
+		<input type=text name="ready" value="0">
+		<input type=text name="loggedin" value="">
+		</form>
 		<script type="text/javascript" language="JavaScript">
 
-			google.setOnLoadCallback(setupMyService());
-			google.load("gdata", "1");
+			google.setOnLoadCallback(setReady);
+			var feedUrl = "http://www.google.com/calendar/feeds/markjfe@gmail.com/private/full"
+			var ready = 0
+
+			function setReady() {
+				document.forms["inputform"]["ready"].value = 1;
+				document.forms["inputform"]["loggedin"].value = "not sure: " + google.accounts.user.getInfo();
+
+			}
+
+			function getReady() {
+				return document.forms["inputform"]["ready"].value;
+			}
 
 			function logMeIn() {
-				scope = "http://finance.google.com/finance/feeds/";
+				scope = "http://www.google.com/calendar/feeds/";
 				var token = google.accounts.user.login(scope);
+				document.forms["inputform"]["loggedin"].value = "logged in: " + google.accounts.user.login.getInfo();
+			}
+
+			function logMeOut() {
+				google.accounts.user.logout();
+				document.forms["inputform"]["loggedin"].value = "logged out: " + google.accounts.user.login.getInfo();
 			}
 
 			function setupMyService() {
-				var myService =
-					new google.gdata.finance.FinanceService('exampleCo-exampleApp-1');
-				logMeIn();
+				var myService = new google.gdata.calendar.CalendarService('exampleCo-exampleApp-1');
 				return myService;
 			}
 
-			function sayHello() {
-				alert("stuff is loaded");
+			function getMyFeed() {
+				if ( getReady() == 1 ) {
+					myService = setupMyService();
+					myService.getEventsFeed(feedUrl, handleMyFeed, handleError);
+				} else {
+					alert("not ready: " + getReady());
+				}
+			}
+
+			function handleMyFeed(myResultsFeedRoot) {
+			  alert("This feed's title is: " + myResultsFeedRoot.feed.getTitle().getText());
+			}
+
+			function handleError(e) {
+			  alert("There was an error!  You may need to logout and login again");
+			  alert(e.cause ? e.cause.statusText : e.message);
 			}
 
 		</script>
