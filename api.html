@@ -3,7 +3,7 @@
 		<title>JavaScript Test Page</title>
 		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 		<script type="text/javascript" language="JavaScript">
-			google.load("gdata", "2", {packages: ["calendar"]});
+			google.load("gdata", "2", {packages: ["finance"]});
 		</script>
 	</head>
 	<body>
@@ -11,14 +11,16 @@
 		<form name="inputform">
 		<input type=button name="login" value="Login" onclick="logMeIn()">
 		<input type=button name="logout" value="Logout" onclick="logMeOut()">
+		<input type=button name="cleardebug" value="Clear Debug Window" onclick="clearDebug()">
 		<input type=button name="getmyfeed" value="Get My Feed" onclick="getMyFeed()">
 		<input type=text name="ready" value="0">
 		<input type=text name="loggedin" value="">
 		</form>
+		<div id="debugdiv">Debug Output</div>
 		<script type="text/javascript" language="JavaScript">
 
 			google.setOnLoadCallback(setReady);
-			var feedUrl = "http://www.google.com/calendar/feeds/markjfe@gmail.com/private/full"
+			var feedUrl = "http://www.google.com/finance/feeds/markjfe@gmail.com/private/full"
 			var ready = 0
 
 			function setReady() {
@@ -32,7 +34,7 @@
 			}
 
 			function logMeIn() {
-				scope = "http://www.google.com/calendar/feeds/";
+				scope = "http://www.google.com/finance/feeds/";
 				var token = google.accounts.user.login(scope);
 				document.forms["inputform"]["loggedin"].value = "logged in: " + google.accounts.user.login.getInfo();
 			}
@@ -43,7 +45,7 @@
 			}
 
 			function setupMyService() {
-				var myService = new google.gdata.calendar.CalendarService('exampleCo-exampleApp-1');
+				var myService = new google.gdata.finance.FinanceService('exampleCo-exampleApp-1');
 				return myService;
 			}
 
@@ -52,17 +54,29 @@
 					myService = setupMyService();
 					myService.getEventsFeed(feedUrl, handleMyFeed, handleError);
 				} else {
-					alert("not ready: " + getReady());
+					debug("not ready: " + getReady());
 				}
 			}
 
 			function handleMyFeed(myResultsFeedRoot) {
-			  alert("This feed's title is: " + myResultsFeedRoot.feed.getTitle().getText());
+			  msg = "This feed's title is: " + myResultsFeedRoot.feed.getTitle().getText();
+			  debug(msg);
+			}
+
+			function debug(msg) {
+			  b = document.createElement("p");
+			  b.appendChild(document.createTextNode(msg))
+			  debugdiv = document.getElementById("debugdiv");
+			  debugdiv.appendChild(b);
+			}
+
+			function clearDebug() {
+				document.getElementById("debugdiv").innerHTML = "";
 			}
 
 			function handleError(e) {
-			  alert("There was an error!  You may need to logout and login again");
-			  alert(e.cause ? e.cause.statusText : e.message);
+			  debug("There was an error!  You may need to logout and login again");
+			  debug(e.cause ? e.cause.statusText : e.message);
 			}
 
 		</script>
