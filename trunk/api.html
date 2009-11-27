@@ -20,7 +20,7 @@
 		<script type="text/javascript" language="JavaScript">
 
 			google.setOnLoadCallback(setReady);
-			var feedUrl = "http://www.google.com/finance/feeds/markjfe@gmail.com/private/full"
+			var portfolioFeedUri = 'http://finance.google.com/finance/feeds/default/portfolios';
 			var ready = 0
 
 			function setReady() {
@@ -45,22 +45,20 @@
 			}
 
 			function setupMyService() {
-				var myService = new google.gdata.finance.FinanceService('exampleCo-exampleApp-1');
+				var myService = new google.gdata.finance.FinanceService('GoogleInc-financejsguide-1.0');
 				return myService;
 			}
 
 			function getMyFeed() {
 				if ( getReady() == 1 ) {
+					debug('Retrieving a list of the user portfolios...');
 					myService = setupMyService();
-					myService.getEventsFeed(feedUrl, handleMyFeed, handleError);
+					myService.getPortfolioFeed(portfolioFeedUri,
+					                                portfolioFeedCallback,
+					                                handleErrorCallback);
 				} else {
 					debug("not ready: " + getReady());
 				}
-			}
-
-			function handleMyFeed(myResultsFeedRoot) {
-			  msg = "This feed's title is: " + myResultsFeedRoot.feed.getTitle().getText();
-			  debug(msg);
 			}
 
 			function debug(msg) {
@@ -74,9 +72,26 @@
 				document.getElementById("debugdiv").innerHTML = "";
 			}
 
-			function handleError(e) {
-			  debug("There was an error!  You may need to logout and login again");
+			// This callback will run when the portfolio query is complete
+			function portfolioFeedCallback(result) {
+			  debug("about to enter portfolioFeedCallback(" + result + ")");
+			  // An array with all of the user's portfolios
+			  var entries = result.feed.entry;
+			  for (var i = 0; i < entries.length; i++) {
+			    var portfolioEntry = entries[i];
+			    var portfolioTitle = portfolioEntry.getTitle().getText();
+			    debug('Portfolio ' + (i+1) + ': ' + portfolioTitle);
+			  }
+			};
+
+			// FinanceService methods may be supplied with an alternate callback for errors
+			function handleErrorCallback(e) {
+			  debug("about to enter handleErrorCallback(" + e + ")");
+			  debug("portfolioFeedUri: " + portfolioFeedUri);
+			  debug("myService: " + myService);
 			  debug(e.cause ? e.cause.statusText : e.message);
-			}
+			  debug(e.toString());
+			};
+
 
 		</script>
